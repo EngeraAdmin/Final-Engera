@@ -1,0 +1,10 @@
+{
+  "name": "final-engera",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "engera-db",
+      "database_id": "b0d39c19-8b74-4a34-b4cf-26e44570d12d"
+    }
+  ]
+}
