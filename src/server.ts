@@ -2,6 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { runWithCloudflareEnv, resolveCloudflareBindings } from "./lib/cf-env";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -48,7 +49,13 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const handler = await getServerEntry();
-      const response = await handler.fetch(request, env, ctx);
+      // Stash the raw Workers `env` (D1/R2 bindings + secrets) in request-scoped
+      // storage, readable from anywhere downstream — including deep inside
+      // server functions — via getCloudflareEnv(). A no-op on platforms other
+      // than Cloudflare; getCloudflareEnv() reports a clear error if called there.
+      const response = await runWithCloudflareEnv(resolveCloudflareBindings(request, env), () =>
+        handler.fetch(request, env, ctx),
+      );
       return await normalizeCatastrophicSsrResponse(response);
     } catch (error) {
       console.error(error);

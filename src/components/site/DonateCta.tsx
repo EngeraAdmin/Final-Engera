@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { DONATE_URL } from "@/lib/site";
+import { useGlobalContent, useSettings } from "@/components/site/SiteDataContext";
 import { cn } from "@/lib/utils";
 
 /**
@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
  * lets the footer drop its top margin and add a hairline divider site-wide.
  */
 export function DonateCta({
-  heading = "Your gift keeps the lights on.",
-  body = "Solar panels, safe deliveries, medicines and training — funded by people who believe rural health care shouldn't be a lottery.",
-  label = "Donate to Engera USA",
+  heading,
+  body,
+  label,
   className,
 }: {
   heading?: string;
@@ -17,8 +17,11 @@ export function DonateCta({
   label?: string;
   className?: string;
 }) {
+  const { donateUrl } = useSettings();
+  const g = useGlobalContent();
   return (
     <section
+      data-section="global:cta"
       className={cn(
         "donate-cta group bg-primary text-primary-foreground transition-[background-color,box-shadow] duration-300 hover:bg-primary-light hover:shadow-[inset_0_0_80px_rgba(255,255,255,0.08)]",
         className,
@@ -26,8 +29,8 @@ export function DonateCta({
     >
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-16 md:flex-row md:items-center md:justify-between md:py-20 lg:px-8">
         <div>
-          <h2 className="font-display text-3xl md:text-4xl">{heading}</h2>
-          <p className="mt-3 max-w-xl text-primary-foreground/80">{body}</p>
+          <h2 className="font-display text-3xl md:text-4xl">{heading ?? g.t("cta_heading")}</h2>
+          <p className="mt-3 max-w-xl text-primary-foreground/80">{body ?? g.t("cta_body")}</p>
         </div>
         <Button
           asChild
@@ -35,8 +38,8 @@ export function DonateCta({
           size="lg"
           className="transition-transform duration-300 group-hover:scale-105"
         >
-          <a href={DONATE_URL} target="_blank" rel="noreferrer">
-            {label}
+          <a href={donateUrl} target="_blank" rel="noreferrer">
+            {label ?? g.t("cta_label")}
           </a>
         </Button>
       </div>

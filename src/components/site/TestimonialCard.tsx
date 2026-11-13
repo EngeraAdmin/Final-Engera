@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 import type { Testimonial } from "@/data/testimonials";
-import { getFacility } from "@/data/facilities";
+import { useFacilities } from "@/components/site/SiteDataContext";
 import { cn } from "@/lib/utils";
 import { PhotoAlbum } from "@/components/site/PhotoAlbum";
 
@@ -14,7 +14,10 @@ export function TestimonialCard({
   className?: string;
   showFacilityLink?: boolean;
 }) {
-  const facility = testimonial.facilitySlug ? getFacility(testimonial.facilitySlug) : undefined;
+  const facilities = useFacilities();
+  const facility = testimonial.facilitySlug
+    ? facilities.find((f) => f.slug === testimonial.facilitySlug)
+    : undefined;
 
   return (
     <figure

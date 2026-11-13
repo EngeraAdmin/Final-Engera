@@ -1,0 +1,6 @@
+# Copy this file to .dev.vars (no .example) and fill in a real value.
+# .dev.vars is already in .gitignore — it must never be committed.
+#
+# Generate a random 32+ character secret, e.g. by running:
+#   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+SESSION_SECRET=replace-with-a-random-32+-character-string

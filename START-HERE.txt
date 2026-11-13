@@ -1,0 +1,31 @@
+ENGERA WEBSITE - DEMO (a practice copy on your computer)
+=========================================================
+
+1. Double-click  START-DEMO.bat
+   (or, in a terminal opened in this folder:
+        node node_modules/vite/bin/vite.js dev )
+
+2. Your browser opens on the admin sign-in page.
+   The login is already filled in:
+
+        username:  admin
+        password:  admin123
+
+   Just press "Sign in".
+
+3. Click "Edit website". You'll see the real website with an editing panel
+   beside it: click any part of a page, change it, watch the preview update,
+   then press "Publish". The dashboard lists a few more things to try, and
+   "View live website" in the left menu shows the public pages.
+
+Good to know
+------------
+* Everything you change is PRACTICE data. It is saved in the ".dev-data"
+  folder next to this file and never touches the real website.
+* To start over: close the window, delete the ".dev-data" folder,
+  and start again.
+* Sample photos to try uploading are in:  dev-demo\sample-photos
+* This demo exists only on your own computer, only while you run it this
+  way. The deployed website does NOT have this login - it uses the real
+  admin account you create during the Cloudflare setup
+  (see README-ADMIN-SETUP.md).

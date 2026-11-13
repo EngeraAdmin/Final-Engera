@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 
 import { cn } from "@/lib/utils";
 import { AfricaBadge } from "./AfricaBadge";
-import { facilities as allFacilities, MAP_CENTER, MAP_DISCLAIMER, type Facility } from "@/data/facilities";
+import { MAP_CENTER, MAP_DISCLAIMER, type Facility } from "@/data/facilities";
+import { useFacilities } from "@/components/site/SiteDataContext";
 
 /** Ethiopia border, simplified from real country-boundary data (datasets/geo-countries). */
 const ETHIOPIA_OUTLINE: [number, number][] = [
@@ -307,33 +308,30 @@ function declutter(points: LayoutPoint[], widths: Map<string, number>) {
  * Computed once, over every facility (not just the ones a given page renders),
  * so a pin — and its label side — sits the same way everywhere it appears.
  */
-const baseLayout: LayoutPoint[] = (() => {
-  const withPositions = allFacilities.map((facility) => {
+function buildLayout(all: Facility[]): Map<string, LayoutPoint> {
+  if (all.length === 0) return new Map();
+  const withPositions = all.map((facility) => {
     const [x, y] = baseMarkerPosition(facility);
     return { facility, x, y };
   });
   const meanX = withPositions.reduce((sum, p) => sum + p.x, 0) / withPositions.length;
-  return withPositions.map(({ facility, x, y }) => ({
+  const base: LayoutPoint[] = withPositions.map(({ facility, x, y }) => ({
     slug: facility.slug,
     x,
     y,
     dir: x >= meanX ? (1 as const) : (-1 as const),
   }));
-})();
+  const widths = new Map(all.map((f) => [f.slug, labelWidth(f)]));
+  return new Map(declutter(base, widths).map((p) => [p.slug, p]));
+}
 
-const labelWidths = new Map(allFacilities.map((f) => [f.slug, labelWidth(f)]));
-
-const MARKER_LAYOUT = new Map<string, LayoutPoint>(
-  declutter(baseLayout, labelWidths).map((p) => [p.slug, p]),
-);
-
-function markerPosition(facility: Facility): [number, number] {
-  const p = MARKER_LAYOUT.get(facility.slug);
+function markerPosition(layout: Map<string, LayoutPoint>, facility: Facility): [number, number] {
+  const p = layout.get(facility.slug);
   return p ? [p.x, p.y] : baseMarkerPosition(facility);
 }
 
-function markerDirection(facility: Facility): 1 | -1 {
-  return MARKER_LAYOUT.get(facility.slug)?.dir ?? 1;
+function markerDirection(layout: Map<string, LayoutPoint>, facility: Facility): 1 | -1 {
+  return layout.get(facility.slug)?.dir ?? 1;
 }
 
 function shortStat(facility: Facility) {
@@ -359,6 +357,10 @@ export function IllustrativeMap({
   showDisclaimer = true,
 }: IllustrativeMapProps) {
   const [hovered, setHovered] = useState<string | null>(null);
+  // Pin positions are worked out from the FULL facility list (not just the ones
+  // this page shows) so a pin sits in the same place everywhere it appears.
+  const allFacilities = useFacilities();
+  const layout = useMemo(() => buildLayout(allFacilities), [allFacilities]);
   const activeSlug = hovered ?? selectedSlug ?? null;
   const active = facilities.find((f) => f.slug === activeSlug);
   const [regionX, regionY] = project(MAP_CENTER[1], MAP_CENTER[0]);
@@ -375,7 +377,7 @@ export function IllustrativeMap({
         <svg
           viewBox="0 0 470 380"
           role="img"
-          aria-label="Illustrated map of Ethiopia showing the eight health facilities Engera supports"
+          aria-label={`Illustrated map of Ethiopia showing the ${allFacilities.length} health facilities Engera supports`}
           className="h-full w-full"
         >
           <path
@@ -438,8 +440,8 @@ export function IllustrativeMap({
           />
 
           {facilities.map((facility) => {
-            const [x, y] = markerPosition(facility);
-            const dir = markerDirection(facility);
+            const [x, y] = markerPosition(layout, facility);
+            const dir = markerDirection(layout, facility);
             const isActive = facility.slug === activeSlug;
             return (
               <g

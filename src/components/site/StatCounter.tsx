@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
+import { str, type PageContent } from "@/lib/content-schema";
+
 export type Stat = {
   value: number;
   suffix?: string;
@@ -9,7 +11,6 @@ export type Stat = {
   /** Set for years or other values that should not use a thousands separator. */
   plain?: boolean;
 };
-
 
 function useCountUp(target: number, active: boolean, duration = 1400) {
   const [value, setValue] = useState(0);
@@ -76,4 +77,18 @@ export function StatGrid({ stats }: { stats: Stat[] }) {
       ))}
     </div>
   );
+}
+
+/** Figures from the shared "Key figures" lists. */
+export function statsFrom(g: PageContent, key: string): Stat[] {
+  return g.list(key).map((s) => {
+    const stat: Stat = {
+      value: Number(s["value"]) || 0,
+      label: str(s["label"]),
+    };
+    if (str(s["suffix"])) stat.suffix = str(s["suffix"]);
+    if (str(s["note"])) stat.note = str(s["note"]);
+    if (s["plain"] === true) stat.plain = true;
+    return stat;
+  });
 }

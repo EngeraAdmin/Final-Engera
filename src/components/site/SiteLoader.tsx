@@ -2,13 +2,16 @@ import { useEffect, useState } from "react";
 
 import { BrandLogo } from "@/components/site/BrandLogo";
 import heroPhoto from "@/assets/photos/hero.jpg";
+import { isPreviewWindow } from "@/lib/preview";
 
 export function SiteLoader() {
   const [visible, setVisible] = useState(true);
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    const alreadySeen = window.sessionStorage.getItem("engera-intro-seen") === "true";
+    // Never show the intro animation inside the admin's live preview.
+    const alreadySeen =
+      isPreviewWindow() || window.sessionStorage.getItem("engera-intro-seen") === "true";
     if (alreadySeen) {
       setVisible(false);
       return;
@@ -26,10 +29,7 @@ export function SiteLoader() {
   if (!visible) return null;
 
   return (
-    <div
-      aria-hidden
-      className={`site-loader ${leaving ? "is-leaving" : ""}`}
-    >
+    <div aria-hidden className={`site-loader ${leaving ? "is-leaving" : ""}`}>
       <img src={heroPhoto} alt="" className="site-loader-photo" />
       <div className="site-loader-overlay" />
       <BrandLogo light className="site-loader-logo" usaClassName="text-primary-foreground" />

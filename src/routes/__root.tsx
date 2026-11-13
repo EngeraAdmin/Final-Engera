@@ -16,6 +16,10 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteLoader } from "@/components/site/SiteLoader";
+import { SiteDataProvider } from "@/components/site/SiteDataContext";
+import { getSiteDataServerFn } from "@/lib/site-data";
+import { PreviewBridge } from "@/components/site/PreviewBridge";
+import { contentOf } from "@/lib/content-schema";
 
 function NotFoundComponent() {
   return (
@@ -76,32 +80,38 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Engera USA — Rural health care in Ethiopia" },
-      {
-        name: "description",
-        content:
-          "Engera USA supports eight rural health facilities serving more than 230,000 people a year in Ethiopia's Gurage Zone and Oromia's South West Shewa.",
-      },
-      { name: "author", content: "Engera USA" },
-      { property: "og:site_name", content: "Engera USA" },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..600&family=Inter:wght@300..700&display=swap",
-      },
-      { rel: "icon", href: "/favicon.png", type: "image/png" },
-    ],
-  }),
+  // Facilities, testimonials and site-wide settings, shared by every public page.
+  // Falls back to the built-in content if the admin database isn't connected.
+  loader: () => getSiteDataServerFn(),
+  staleTime: 30_000,
+  head: ({ loaderData }) => {
+    const g = contentOf("global", loaderData?.global);
+    return {
+      meta: [
+        { charSet: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { title: g.t("site_title") },
+        {
+          name: "description",
+          content: g.t("site_description"),
+        },
+        { name: "author", content: "Engera USA" },
+        { property: "og:site_name", content: "Engera USA" },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+      links: [
+        { rel: "stylesheet", href: appCss },
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..600&family=Inter:wght@300..700&display=swap",
+        },
+        { rel: "icon", href: "/favicon.png", type: "image/png" },
+      ],
+    };
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -124,22 +134,38 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const siteData = Route.useLoaderData();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // The admin dashboard has its own chrome (AdminShell) — the public site's
+  // header/footer/loader don't belong there.
+  const isAdmin = pathname === "/admin" || pathname.startsWith("/admin/");
+
+  if (isAdmin) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <Outlet />
+        <Toaster />
+      </QueryClientProvider>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SiteLoader />
-      <div className="flex min-h-screen flex-col bg-background">
-        <Header />
-        <main className="flex-1">
-          {/* Required: nested routes render here. Keyed for a soft page transition. */}
-          <div key={pathname} className="page-fade">
-            <Outlet />
-          </div>
-        </main>
-        <Footer />
-      </div>
-      <Toaster />
+      <SiteDataProvider value={siteData}>
+        <SiteLoader />
+        <PreviewBridge />
+        <div className="flex min-h-screen flex-col bg-background">
+          <Header />
+          <main className="flex-1">
+            {/* Required: nested routes render here. Keyed for a soft page transition. */}
+            <div key={pathname} className="page-fade">
+              <Outlet />
+            </div>
+          </main>
+          <Footer />
+        </div>
+        <Toaster />
+      </SiteDataProvider>
     </QueryClientProvider>
   );
 }

@@ -5,7 +5,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/site/BrandLogo";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { DONATE_URL, NAV_LINKS } from "@/lib/site";
+import { NAV_LINKS } from "@/lib/site";
+import { useGlobalContent, useSettings } from "@/components/site/SiteDataContext";
 
 function Wordmark() {
   return (
@@ -17,9 +18,14 @@ function Wordmark() {
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const { donateUrl } = useSettings();
+  const g = useGlobalContent();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur">
+    <header
+      data-section="global:header"
+      className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur"
+    >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-5 md:h-20 lg:px-8">
         <Wordmark />
 
@@ -32,15 +38,15 @@ export function Header() {
               activeProps={{ className: "text-primary border-b-2 border-accent pb-0.5" }}
               activeOptions={{ exact: link.to === "/" }}
             >
-              {link.label}
+              {g.t(link.contentKey)}
             </Link>
           ))}
         </nav>
 
         <div className="flex items-center gap-2">
           <Button asChild variant="donate" size="sm" className="hidden sm:inline-flex">
-            <a href={DONATE_URL} target="_blank" rel="noreferrer">
-              Donate
+            <a href={donateUrl} target="_blank" rel="noreferrer">
+              {g.t("header_donate_label")}
             </a>
           </Button>
 
@@ -51,7 +57,9 @@ export function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[85vw] max-w-sm bg-background">
-              <SheetTitle className="font-display text-xl text-primary">Menu</SheetTitle>
+              <SheetTitle className="font-display text-xl text-primary">
+                {g.t("mobile_menu_title")}
+              </SheetTitle>
               <nav className="mt-6 flex flex-col gap-1" aria-label="Mobile">
                 {NAV_LINKS.map((link) => (
                   <Link
@@ -62,13 +70,13 @@ export function Header() {
                     activeProps={{ className: "text-accent" }}
                     activeOptions={{ exact: link.to === "/" }}
                   >
-                    {link.label}
+                    {g.t(link.contentKey)}
                   </Link>
                 ))}
               </nav>
               <Button asChild variant="donate" className="mt-6 w-full">
-                <a href={DONATE_URL} target="_blank" rel="noreferrer">
-                  Donate
+                <a href={donateUrl} target="_blank" rel="noreferrer">
+                  {g.t("header_donate_label")}
                 </a>
               </Button>
             </SheetContent>

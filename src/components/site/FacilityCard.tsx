@@ -2,8 +2,10 @@ import { Link } from "@tanstack/react-router";
 
 import type { Facility } from "@/data/facilities";
 import { FacilityPlaceholder } from "./FacilityPlaceholder";
+import { useGlobalContent } from "./SiteDataContext";
 
 export function FacilityCard({ facility }: { facility: Facility }) {
+  const g = useGlobalContent();
   return (
     <article className="card-lift group flex h-full flex-col border border-border bg-card shadow-card">
       <div className="aspect-[4/3] w-full overflow-hidden">
@@ -30,7 +32,7 @@ export function FacilityCard({ facility }: { facility: Facility }) {
           params={{ slug: facility.slug }}
           className="mt-5 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-primary transition-colors hover:text-accent"
         >
-          View details →
+          {g.t("card_link_label")}
         </Link>
       </div>
     </article>

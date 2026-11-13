@@ -13,6 +13,8 @@ export type Testimonial = {
   photoAlt?: string;
   photos?: { src: string; alt: string }[];
   source?: string;
+  /** false = left off the Impact page's "Voices" (still shown on its facility page). */
+  showOnImpact?: boolean;
 };
 
 export const testimonials: Testimonial[] = [
@@ -22,6 +24,7 @@ export const testimonials: Testimonial[] = [
       "Since its official founding in 2007, Engera has worked closely with the Gurage community, including the area where my family comes from. During my visit to Zizencho, I saw how local teams, supported by Engera, have brought dependable healthcare closer to families who once faced long and difficult journeys for treatment.",
     name: "Dr Eyosiyas Arega",
     title: "Country Advisor",
+    showOnImpact: false,
     facilitySlug: "zizencho-health-center",
   },
   {

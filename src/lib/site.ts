@@ -1,12 +1,12 @@
 export const DONATE_URL = "https://engera.beaconforms.com/form/212e5fb2";
 
 export const NAV_LINKS = [
-  { to: "/", label: "Home" },
-  { to: "/about", label: "About Us" },
-  { to: "/impact", label: "Impact" },
-  { to: "/projects", label: "Projects" },
-  { to: "/get-involved", label: "Get Involved" },
-  { to: "/contact", label: "Contact" },
+  { to: "/", label: "Home", contentKey: "nav_home" },
+  { to: "/about", label: "About Us", contentKey: "nav_about" },
+  { to: "/impact", label: "Impact", contentKey: "nav_impact" },
+  { to: "/projects", label: "Projects", contentKey: "nav_projects" },
+  { to: "/get-involved", label: "Get Involved", contentKey: "nav_get_involved" },
+  { to: "/contact", label: "Contact", contentKey: "nav_contact" },
 ] as const;
 
 export const ORG = {
@@ -17,6 +17,15 @@ export const ORG = {
   sister: "https://www.engera.org",
   uk: "https://www.engerauk.com",
 };
+
+/**
+ * Newsletter signups are handled by Buttondown (buttondown.com).
+ * To switch the website's signup form on: create the Buttondown account, then
+ * put its username here — it's the last part of the newsletter's web address
+ * (for buttondown.com/engera the username is "engera"). Leave it empty until
+ * then: the form keeps its current placeholder behaviour and nothing is sent.
+ */
+export const BUTTONDOWN_USERNAME = "";
 
 export const SOCIAL_LINKS = [
   { label: "LinkedIn", href: "https://www.linkedin.com/company/engera-ngo" },
