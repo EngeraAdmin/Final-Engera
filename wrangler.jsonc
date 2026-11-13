@@ -1,10 +1,16 @@
-{
-  "name": "final-engera",
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "engera-db",
-      "database_id": "b0d39c19-8b74-4a34-b4cf-26e44570d12d"
-    }
-  ]
-}
+   {
+     "name": "final-engera",
+     "d1_databases": [
+       {
+         "binding": "DB",
+         "database_name": "engera-db",
+         "database_id": "b0d39c19-8b74-4a34-b4cf-26e44570d12d"
+       }
+     ],
+     "r2_buckets": [
+       { "binding": "MEDIA", "bucket_name": "engera-media" }
+     ],
+     "vars": {
+       "R2_PUBLIC_BASE_URL": "https://pub-4b67ec61fd1e4828bfe4d9269fc865db.r2.dev"
+     }
+   }
